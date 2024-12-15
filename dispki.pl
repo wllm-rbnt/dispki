@@ -89,8 +89,6 @@ sub genroot {
 }
 
 sub genintermediates {
-    $level=1;
-
     while($depth) {
         print "Generating intermediate CA certificate & key ... (level $level)\n";
         my $reqCA = $reqCA_tpl =~ s/&CN&/dispki_int_$level\_$id/r;
@@ -155,5 +153,6 @@ print "bits: ".$bits."\n";
 print "ttl: ".$ttl."\n";
 
 genroot;
+$level=1;
 genintermediates if $depth;
 genserver;
