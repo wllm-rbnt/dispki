@@ -1,4 +1,4 @@
-# "dispki: One-Shot Disposable PKI"
+# dispki: One-Shot Disposable PKI
 
 This tool helps create a disposable PKI you can used for testing purposes.
 
