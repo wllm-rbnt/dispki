@@ -27,6 +27,8 @@ chomp($openssl);
 
 my $depth = 0;
 my $bits = 2048;
+my $curve = 'P-256';
+my $ec = 0;
 my $ttl = 365;
 my $cn = "";
 my $sans;
@@ -37,8 +39,11 @@ my $prevca = '';
 sub print_usage {
     print "Usage:\n";
     print "\t$0 [-d|--depth <number>] [-b|--bits <number>] [-t|--ttl <number>] <server CN> [<server SANs>]\n\n";
+    print "\t$0 [-d|--depth <number>] [-e|--ec] [-c|--curve <curve>] [-t|--ttl <number>] <server CN> [<server SANs>]\n\n";
     print "-d| --depth <number> -> number of intermediate CAs (none by default)\n";
     print "-b| --bits <number> -> key length in bits (default: 2048 bits)\n";
+    print "-e| --ec -> switch to elliptic curve cryptosystem\n";
+    print "-c| --curve -> specify elliptic curve to use (default: P-256)\n";
     print "-t| --ttl <number>  -> TTL in days (default: 365 days)\n";
     print "Use --help (or -h) to print this help message\n";
     exit 1
@@ -83,8 +88,13 @@ sub genroot {
     print FH $reqCA;
     close(FH);
 
-    system($openssl, 'req', '-x509', '-sha256', '-nodes', '-days', "$ttl", '-newkey', "rsa:$bits",
-        '-keyout', $ca.'.key', '-out', $ca.'.crt', '-config', $ca.'.req', '-extensions', 'v3_req');
+    if($ec) {
+        system($openssl, 'req', '-x509', '-sha256', '-nodes', '-days', "$ttl", '-newkey', 'ec', '-pkeyopt', "ec_paramgen_curve:$curve",
+            '-keyout', $ca.'.key', '-out', $ca.'.crt', '-config', $ca.'.req', '-extensions', 'v3_req');
+    } else {
+        system($openssl, 'req', '-x509', '-sha256', '-nodes', '-days', "$ttl", '-newkey', "rsa:$bits",
+            '-keyout', $ca.'.key', '-out', $ca.'.crt', '-config', $ca.'.req', '-extensions', 'v3_req');
+    }
     $prevca = $ca;
 }
 
@@ -98,9 +108,15 @@ sub genintermediates {
         print FH $reqCA;
         close(FH);
 
-        system($openssl, 'req', '-x509', '-sha256', '-nodes', '-days', "$ttl", '-newkey', "rsa:$bits",
-            '-keyout', $ca.'.key', '-out', $ca.'.crt', '-CA', $prevca.'.crt', '-CAkey', $prevca.'.key',
-            '-config', $ca.'.req', '-extensions', 'v3_req');
+        if($ec) {
+            system($openssl, 'req', '-x509', '-sha256', '-nodes', '-days', "$ttl", '-newkey', 'ec', '-pkeyopt', "ec_paramgen_curve:$curve",
+                '-keyout', $ca.'.key', '-out', $ca.'.crt', '-CA', $prevca.'.crt', '-CAkey', $prevca.'.key',
+                '-config', $ca.'.req', '-extensions', 'v3_req');
+        } else {
+            system($openssl, 'req', '-x509', '-sha256', '-nodes', '-days', "$ttl", '-newkey', "rsa:$bits",
+                '-keyout', $ca.'.key', '-out', $ca.'.crt', '-CA', $prevca.'.crt', '-CAkey', $prevca.'.key',
+                '-config', $ca.'.req', '-extensions', 'v3_req');
+        }
         $prevca = $ca;
         $depth--;
         $level++;
@@ -128,15 +144,23 @@ sub genserver {
     print FH $req;
     close(FH);
 
-    system($openssl, 'req', '-x509', '-sha256', '-nodes', '-days', "$ttl", '-newkey', "rsa:$bits",
-        '-keyout', $cert.'.key', '-out', $cert.'.crt', '-CA', $prevca.'.crt', '-CAkey', $prevca.'.key',
-        '-config', $cert.'.req', '-extensions', 'v3_req');
+    if($ec) {
+        system($openssl, 'req', '-x509', '-sha256', '-nodes', '-days', "$ttl", '-newkey', 'ec', '-pkeyopt', "ec_paramgen_curve:$curve",
+            '-keyout', $cert.'.key', '-out', $cert.'.crt', '-CA', $prevca.'.crt', '-CAkey', $prevca.'.key',
+            '-config', $cert.'.req', '-extensions', 'v3_req');
+    } else {
+        system($openssl, 'req', '-x509', '-sha256', '-nodes', '-days', "$ttl", '-newkey', "rsa:$bits",
+            '-keyout', $cert.'.key', '-out', $cert.'.crt', '-CA', $prevca.'.crt', '-CAkey', $prevca.'.key',
+            '-config', $cert.'.req', '-extensions', 'v3_req');
+    }
 }
 
 GetOptions(
     'help|h' => sub { print_usage },
     'depth|d=i' => \$depth,
     'bits|b=i' => \$bits,
+    'ec|e' => sub { $ec = 1 },
+    'curve|c=s' => \$curve,
     'ttl|t=i' => \$ttl,
 ) or do { print_usage };
 
@@ -148,11 +172,12 @@ do { print "Missing CN !\n\n"; print_usage } if not $cn;
 print "CN: ".$cn."\n";
 print "SANs: www.$cn";
 foreach (@{$sans}) {
-    print " $_";
+    print " $_ www.$_";
 }
-print "\ndepth: ".$depth."\n";
-print "bits: ".$bits."\n";
-print "ttl: ".$ttl."\n";
+print "\nChain depth: ".$depth."\n";
+print "TTL: ".$ttl."\n";
+print "RSA modulus length: ".$bits."\n" unless $ec;
+print "EC curve: ".$curve."\n" if $ec;
 
 genroot;
 $level=1;

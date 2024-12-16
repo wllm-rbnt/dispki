@@ -2,7 +2,9 @@
 
 This tool helps create a disposable PKI you can use for testing purposes, simply.
 
-It generates a chain of X.509 RSA certificates, up to a self-signed one.
+It generates a chain of X.509 certificates, up to a self-signed one.
+
+RSA is used by default, EC is also supported.
 
 Server certificate CN and SANs can be specified, along with various optional
 parameters.
@@ -10,10 +12,14 @@ parameters.
 # Usage
 
     ./dispki.pl [-d|--depth <number>] [-b|--bits <number>] [-t|--ttl <number>] <server CN> [<server SANs>]
+    ./dispki.pl [-d|--depth <number>] [-e|--ec] [-c|--curve <curve>] [-t|--ttl <number>] <server CN> [<server SANs>]
 
     -d| --depth <number> -> number of intermediate CAs (default is none)
     -b| --bits <number> -> key length in bits (for all key pairs, default is 2048)
     -t| --ttl <number>  -> TTL in days for all certificates (default is 365)
+    -e| --ec -> switch to elliptic curve cryptosystem
+    -c| --curve -> specify elliptic curve to use (default: P-256)
+
 
 # Examples
 
@@ -49,7 +55,7 @@ Private keys file are not encrypted.
 
 ## CN + SAN + Intermediate certificates
 
-    ./dispki.pl -d 2 bla.lu bli.lu
+    ./dispki.pl -e -d 2 bla.lu bli.lu
 
 Compared to previous command, this one adds `bli.lu` and `www.bli.lu` to the
 list of SANs of the leaf server certificate.
@@ -71,6 +77,8 @@ certificate has the lower index, 0.  Intermediated certificate are indexed as 1
     3_server_1734300199.crt
     3_server_1734300199.key
     3_server_1734300199.req
+
+All keypairs are EC based (-e).
 
 ## Using the certificates
 
