@@ -82,20 +82,31 @@ All keypairs are EC based (-e).
 
 ## Using the certificates
 
-Create a certificate bundle:
+A bundle file containing all CA certificates along with a file containing
+useful environment variables are created during the generation process:
 
-    $ cat *ca_*.crt > ca.bundle
+    ca_bundle.1734300199
+    env.1734300199
 
-Start an SSL/TLS server on localhost port 443:
+The env file can then be sourced in current shell in order to declare the
+following variables:
 
-    $ export server_cert=3_server_1734300199.crt
-    $ export server_key=3_server_1734300199.key
-    $ export ca_bundle=ca.bundle
+    server_cert
+    server_key
+    ca_bundle
+
+These variables can, for instance, be used to start an SSL/TLS server listening
+on localhost port 443:
+
     $ sudo -E socat openssl-listen:443,reuseaddr,cert=$server_cert,key=$server_key,cafile=$ca_bundle,verify=0,fork STDOUT
 
-Connect to the server using OpenSSL's `s_client` app:
+You can connect to the server using OpenSSL's `s_client` app:
 
     $ openssl s_client -servername bla.lu -connect localhost:443 -verifyCAfile 0_rootca_1734300199.crt
+
+## Clean up
+
+`./clean.sh` will delete all generated files.
 
 # Dependencies
 

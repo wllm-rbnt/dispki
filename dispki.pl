@@ -155,6 +155,25 @@ sub genserver {
     }
 }
 
+sub genbundle {
+    my @certs = glob("*ca_$id.crt");
+    open BUNDLE, ">> ca_bundle.$id" or die $!;
+    foreach(@certs){
+        open CERT, "< $_" or die $!;
+        print BUNDLE <CERT>;
+        close CERT
+    }
+    close BUNDLE;
+}
+
+sub genenv {
+    open ENV, "> env.$id" or die $!;
+    print ENV 'export server_cert='.$level.'_server_'.$id.".crt\n";
+    print ENV 'export server_key='.$level.'_server_'.$id.".key\n";
+    print ENV "export ca_bundle=ca_bundle.$id\n";
+    close ENV;
+}
+
 GetOptions(
     'help|h' => sub { print_usage },
     'depth|d=i' => \$depth,
@@ -169,17 +188,20 @@ $sans = \@ARGV;
 
 do { print "Missing CN !\n\n"; print_usage } if not $cn;
 
-print "CN: ".$cn."\n";
+print "Session id: $id\n";
+print "CN: $cn\n";
 print "SANs: www.$cn";
 foreach (@{$sans}) {
     print " $_ www.$_";
 }
-print "\nChain depth: ".$depth."\n";
-print "TTL: ".$ttl."\n";
-print "RSA modulus length: ".$bits."\n" unless $ec;
-print "EC curve: ".$curve."\n" if $ec;
+print "\nChain depth: $depth\n";
+print "TTL: $ttl\n";
+print "RSA modulus length: $bits\n" unless $ec;
+print "EC curve: $curve\n" if $ec;
 
 genroot;
 $level=1;
 genintermediates if $depth;
 genserver;
+genbundle;
+genenv;
