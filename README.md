@@ -85,12 +85,13 @@ All keypairs are EC based (-e).
 A bundle file containing all CA certificates along with a file containing
 useful environment variables are created during the generation process:
 
-    ca_bundle.1734300199
-    env.1734300199
+    ca_bundle_1734300199
+    env_1734300199
 
 The env file can then be sourced in current shell in order to declare the
 following variables:
 
+    rootca_cert
     server_cert
     server_key
     ca_bundle
@@ -98,11 +99,13 @@ following variables:
 These variables can, for instance, be used to start an SSL/TLS server listening
 on localhost port 443:
 
+    $ source env_1734300199
     $ sudo -E socat openssl-listen:443,reuseaddr,cert=$server_cert,key=$server_key,cafile=$ca_bundle,verify=0,fork STDOUT
 
-You can connect to the server using OpenSSL's `s_client` app:
+You can connect to the server using OpenSSL's `s_client` app from another shell:
 
-    $ openssl s_client -servername bla.lu -connect localhost:443 -verifyCAfile 0_rootca_1734300199.crt
+    $ source env_1734300199
+    $ openssl s_client -servername bla.lu -connect localhost:443 -verifyCAfile $rootca_cert
 
 ## Clean up
 

@@ -157,7 +157,7 @@ sub genserver {
 
 sub genbundle {
     my @certs = glob("*ca_$id.crt");
-    open BUNDLE, ">> ca_bundle.$id" or die $!;
+    open BUNDLE, ">> ca_bundle_$id" or die $!;
     foreach(@certs){
         open CERT, "< $_" or die $!;
         print BUNDLE <CERT>;
@@ -167,10 +167,11 @@ sub genbundle {
 }
 
 sub genenv {
-    open ENV, "> env.$id" or die $!;
+    open ENV, "> env_$id" or die $!;
     print ENV 'export server_cert='.$level.'_server_'.$id.".crt\n";
     print ENV 'export server_key='.$level.'_server_'.$id.".key\n";
-    print ENV "export ca_bundle=ca_bundle.$id\n";
+    print ENV "export rootca_cert=0_rootca_$id.crt\n";
+    print ENV "export ca_bundle=ca_bundle_$id\n";
     close ENV;
 }
 
