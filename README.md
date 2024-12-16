@@ -76,7 +76,7 @@ certificate has the lower index, 0.  Intermediated certificate are indexed as 1
 
 Create a certificate bundle:
 
-    `$ cat *ca_*.crt > ca.bundle`
+    $ cat *ca_*.crt > ca.bundle
 
 Start an SSL/TLS server on localhost port 443:
 
