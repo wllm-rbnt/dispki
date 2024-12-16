@@ -17,21 +17,45 @@ parameters.
 
 # Examples
 
+## Simple CN
+
     ./dispki.pl bla.lu
 
 This command creates a server certificate for CN `bla.lu`. `www.bla.lu` is
 automatically added to the list of SANs.
 
+Six files are produced:
+
+    0_rootca_1734329560.crt
+    0_rootca_1734329560.key
+    0_rootca_1734329560.req
+    1_server_1734329560.crt
+    1_server_1734329560.key
+    1_server_1734329560.req
+
+These are organized as a sequence. In this case a chain was built with only 2
+certificates. Root certificate has the lower index, 0.  The leaf server
+certificate has indexed 1.
+
+All files that belong to the same chain are suffixed by a common number that
+corresponds to the time (epoch format) when the chain was generated.
+
+`.req` are OpenSSL's configurations that could be reused for manual adjustments
+later on.
+
+`.crt` & `.key` files are certificates and keys, respectively.
+
+## CN + SAN + Intermediate certificates
+
     ./dispki.pl -d 2 bla.lu bli.lu
 
-Compared to previous command, this one adds `bli.lu` and `www.bli.lu` to list
-of SANs of the leaf server certificate. Also, 2 intermediate certificates are
-placed between leaf server certificate and self-signed root certificate.
+Compared to previous command, this one adds `bli.lu` and `www.bli.lu` to the
+list of SANs of the leaf server certificate.
 
-Output files are organized as a sequence. In the following case a chain was
-built with 2 intermediate certificates. Root certificate has the lower id, 0.
-Intermediated certificate are indexed as 1 & 2. The leaf server certificate is
-indexed as 3.
+In this case the chain was built with 2 additional intermediate certificates
+placed between leaf server certificate and self-signed root certificate.  Root
+certificate has the lower index, 0.  Intermediated certificate are indexed as 1
+& 2. The leaf server certificate is indexed as 3.
 
     0_rootca_1734300199.crt
     0_rootca_1734300199.key
@@ -45,13 +69,6 @@ indexed as 3.
     3_server_1734300199.crt
     3_server_1734300199.key
     3_server_1734300199.req
-
-All files that belong to the same chain are suffixed by a common number that
-corresponds to the time (epoch format) when the chain was generated.
-
-`.req` are OpenSSL's configurations that could be reused for manual adjustments when necessary.
-
-`.crt` & `.key` files are certificates and keys, respectively.
 
 # Dependencies
 
