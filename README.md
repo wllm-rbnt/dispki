@@ -1,6 +1,6 @@
 # dispki: One-Shot Disposable PKI
 
-This tool helps create a disposable PKI you can used for testing purposes, simply.
+This tool helps create a disposable PKI you can use for testing purposes, simply.
 
 It generates a chain of X.509 RSA certificates, up to a self-signed one.
 
