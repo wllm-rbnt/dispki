@@ -80,14 +80,14 @@ Create a certificate bundle:
 
 Start an SSL/TLS server on localhost port 443:
 
-    `$ export server_cert=3_server_1734300199.crt`
-    `$ export server_key=3_server_1734300199.key`
-    `$ export ca_bundle=ca.bundle`
-    `$ sudo -E socat openssl-listen:443,reuseaddr,cert=$server_cert,key=$server_key,cafile=$ca_bundle,verify=0,fork STDOUT`
+    $ export server_cert=3_server_1734300199.crt
+    $ export server_key=3_server_1734300199.key
+    $ export ca_bundle=ca.bundle
+    $ sudo -E socat openssl-listen:443,reuseaddr,cert=$server_cert,key=$server_key,cafile=$ca_bundle,verify=0,fork STDOUT
 
 Connect to the server using OpenSSL's `s_client` app:
 
-    `$ openssl s_client -servername bla.lu -connect localhost:443 -verifyCAfile 0_rootca_1734300199.crt`
+    $ openssl s_client -servername bla.lu -connect localhost:443 -verifyCAfile 0_rootca_1734300199.crt
 
 # Dependencies
 
