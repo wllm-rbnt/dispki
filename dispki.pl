@@ -116,6 +116,8 @@ sub genserver {
     foreach (@{$sans}) {
         $sanstr .= "DNS.$i = $_\n";
         $i++;
+        $sanstr .= "DNS.$i = www.$_\n";
+        $i++;
     }
 
     my $req = $req_tpl =~ s/&CN&/$cn/r;

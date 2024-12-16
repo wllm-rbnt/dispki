@@ -24,9 +24,9 @@ automatically added to the list of SANs.
 
     ./dispki.pl -d 2 bla.lu bli.lu
 
-Compared to previous command, this one adds `bli.lu` to list of SANs of the
-leaf server certificate. Also, 2 intermediate certificates are placed between
-leaf server certificate and self-signed root certificate.
+Compared to previous command, this one adds `bli.lu` and `www.bli.lu` to list
+of SANs of the leaf server certificate. Also, 2 intermediate certificates are
+placed between leaf server certificate and self-signed root certificate.
 
 Output files are organized as a sequence. In the following case a chain was
 built with 2 intermediate certificates. Root certificate has the lower id, 0.
