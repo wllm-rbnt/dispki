@@ -43,7 +43,9 @@ corresponds to the time (epoch format) when the chain was generated.
 `.req` are OpenSSL's configurations that could be reused for manual adjustments
 later on.
 
-`.crt` & `.key` files are certificates and keys, respectively.
+`.crt` & `.key` files are certificates and private keys, respectively.
+
+Private keys file are not encrypted.
 
 ## CN + SAN + Intermediate certificates
 
@@ -69,6 +71,23 @@ certificate has the lower index, 0.  Intermediated certificate are indexed as 1
     3_server_1734300199.crt
     3_server_1734300199.key
     3_server_1734300199.req
+
+## Using the certificates
+
+Create a certificate bundle:
+
+    `$ cat *ca_*.crt > ca.bundle`
+
+Start an SSL/TLS server on localhost port 443:
+
+    `$ export server_cert=3_server_1734300199.crt`
+    `$ export server_key=3_server_1734300199.key`
+    `$ export ca_bundle=ca.bundle`
+    `$ sudo -E socat openssl-listen:443,reuseaddr,cert=$server_cert,key=$server_key,cafile=$ca_bundle,verify=0,fork STDOUT`
+
+Connect to the server using OpenSSL's `s_client` app:
+
+    `$ openssl s_client -servername bla.lu -connect localhost:443 -verifyCAfile 0_rootca_1734300199.crt`
 
 # Dependencies
 
