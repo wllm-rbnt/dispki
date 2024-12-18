@@ -88,13 +88,14 @@ sub genroot {
     print FH $reqCA;
     close(FH);
 
+    my @cmd = ($openssl, 'req', '-x509', '-sha256', '-nodes', '-days', "$ttl", '-newkey');
     if($ec) {
-        system($openssl, 'req', '-x509', '-sha256', '-nodes', '-days', "$ttl", '-newkey', 'ec', '-pkeyopt', "ec_paramgen_curve:$curve",
-            '-keyout', $ca.'.key', '-out', $ca.'.crt', '-config', $ca.'.req', '-extensions', 'v3_req');
+        push(@cmd, ('ec', '-pkeyopt', "ec_paramgen_curve:$curve"))
     } else {
-        system($openssl, 'req', '-x509', '-sha256', '-nodes', '-days', "$ttl", '-newkey', "rsa:$bits",
-            '-keyout', $ca.'.key', '-out', $ca.'.crt', '-config', $ca.'.req', '-extensions', 'v3_req');
+        push(@cmd, ("rsa:$bits"))
     }
+    push(@cmd, ('-keyout', $ca.'.key', '-out', $ca.'.crt', '-config', $ca.'.req', '-extensions', 'v3_req'));
+    system(@cmd);
     $prevca = $ca;
 }
 
@@ -108,15 +109,15 @@ sub genintermediates {
         print FH $reqCA;
         close(FH);
 
+        my @cmd = ($openssl, 'req', '-x509', '-sha256', '-nodes', '-days', "$ttl", '-newkey');
         if($ec) {
-            system($openssl, 'req', '-x509', '-sha256', '-nodes', '-days', "$ttl", '-newkey', 'ec', '-pkeyopt', "ec_paramgen_curve:$curve",
-                '-keyout', $ca.'.key', '-out', $ca.'.crt', '-CA', $prevca.'.crt', '-CAkey', $prevca.'.key',
-                '-config', $ca.'.req', '-extensions', 'v3_req');
+            push(@cmd, ('ec', '-pkeyopt', "ec_paramgen_curve:$curve"));
         } else {
-            system($openssl, 'req', '-x509', '-sha256', '-nodes', '-days', "$ttl", '-newkey', "rsa:$bits",
-                '-keyout', $ca.'.key', '-out', $ca.'.crt', '-CA', $prevca.'.crt', '-CAkey', $prevca.'.key',
-                '-config', $ca.'.req', '-extensions', 'v3_req');
+            push(@cmd, ("rsa:$bits"));
         }
+        push(@cmd, ('-keyout', $ca.'.key', '-out', $ca.'.crt', '-CA', $prevca.'.crt', '-CAkey', $prevca.'.key',
+            '-config', $ca.'.req', '-extensions', 'v3_req'));
+        system(@cmd);
         $prevca = $ca;
         $depth--;
         $level++;
@@ -144,15 +145,15 @@ sub genserver {
     print FH $req;
     close(FH);
 
+    my @cmd = ($openssl, 'req', '-x509', '-sha256', '-nodes', '-days', "$ttl", '-newkey');
     if($ec) {
-        system($openssl, 'req', '-x509', '-sha256', '-nodes', '-days', "$ttl", '-newkey', 'ec', '-pkeyopt', "ec_paramgen_curve:$curve",
-            '-keyout', $cert.'.key', '-out', $cert.'.crt', '-CA', $prevca.'.crt', '-CAkey', $prevca.'.key',
-            '-config', $cert.'.req', '-extensions', 'v3_req');
+        push(@cmd, ('ec', '-pkeyopt', "ec_paramgen_curve:$curve"));
     } else {
-        system($openssl, 'req', '-x509', '-sha256', '-nodes', '-days', "$ttl", '-newkey', "rsa:$bits",
-            '-keyout', $cert.'.key', '-out', $cert.'.crt', '-CA', $prevca.'.crt', '-CAkey', $prevca.'.key',
-            '-config', $cert.'.req', '-extensions', 'v3_req');
+        push(@cmd, ("rsa:$bits"));
     }
+    push(@cmd, ('-keyout', $cert.'.key', '-out', $cert.'.crt', '-CA', $prevca.'.crt', '-CAkey', $prevca.'.key',
+        '-config', $cert.'.req', '-extensions', 'v3_req'));
+    system(@cmd);
 }
 
 sub genbundle {
