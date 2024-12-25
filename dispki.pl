@@ -127,13 +127,13 @@ sub genintermediates {
 sub genserver {
     print "Generating server certificate & key ...\n";
 
-    my $sanstr = "DNS.1 = $cn\nDNS.2 = www.$cn\n";
+    my $sanstr = "DNS.1 = $cn\nDNS.2 = *.$cn\n";
 
     my $i = 3;
     foreach (@{$sans}) {
         $sanstr .= "DNS.$i = $_\n";
         $i++;
-        $sanstr .= "DNS.$i = www.$_\n";
+        $sanstr .= "DNS.$i = *.$_\n";
         $i++;
     }
 
@@ -192,9 +192,9 @@ do { print "Missing CN !\n\n"; print_usage } if not $cn;
 
 print "Session id: $id\n";
 print "CN: $cn\n";
-print "SANs: www.$cn";
+print "SANs: $cn *.$cn";
 foreach (@{$sans}) {
-    print " $_ www.$_";
+    print " $_ *.$_";
 }
 print "\nChain depth: $depth\n";
 print "TTL: $ttl\n";

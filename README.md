@@ -27,7 +27,7 @@ parameters.
 
     ./dispki.pl bla.lu
 
-This command creates a server certificate for CN `bla.lu`. `www.bla.lu` is
+This command creates a server certificate for CN `bla.lu`. `*.bla.lu` is
 automatically added to the list of SANs.
 
 Six files are produced:
@@ -57,7 +57,7 @@ Private keys file are not encrypted.
 
     ./dispki.pl -e -d 2 bla.lu bli.lu
 
-Compared to previous command, this one adds `bli.lu` and `www.bli.lu` to the
+Compared to previous command, this one adds `bli.lu` and `*.bli.lu` to the
 list of SANs of the leaf server certificate.
 
 In this case the chain was built with 2 additional intermediate certificates
