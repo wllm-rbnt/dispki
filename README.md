@@ -113,5 +113,5 @@ You can connect to the server using OpenSSL's `s_client` app from another shell:
 
 # Dependencies
 
-- perl
-- openssl
+- Perl
+- OpenSSL version 3+
