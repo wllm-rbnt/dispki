@@ -41,7 +41,7 @@ Six files are produced:
 
 These are organized as a sequence. In this case a chain was built with only 2
 certificates. Root certificate has the lower index, 0.  The leaf server
-certificate has indexed 1.
+certificate has index 1.
 
 All files that belong to the same chain are suffixed by a common number that
 corresponds to the time (epoch format) when the chain was generated.
@@ -51,7 +51,7 @@ later on.
 
 `.crt` & `.key` files are certificates and private keys, respectively.
 
-Private keys file are not encrypted.
+Private keys files are not encrypted.
 
 ## CN + SAN + Intermediate certificates
 
@@ -78,7 +78,7 @@ certificate has the lower index, 0.  Intermediated certificate are indexed as 1
     3_server_1734300199.key
     3_server_1734300199.req
 
-All keypairs are EC based (-e).
+All keypairs are EC based (because of `-e`).
 
 ## Using the certificates
 
@@ -89,7 +89,7 @@ useful environment variables are created during the generation process:
     env_1734300199
 
 The env file can then be sourced in current shell in order to declare the
-following variables:
+following environment variables:
 
     rootca_cert
     server_cert
@@ -97,7 +97,7 @@ following variables:
     ca_bundle
 
 These variables can, for instance, be used to start an SSL/TLS server listening
-on localhost port 443:
+on `localhost` port `443`:
 
     $ source env_1734300199
     $ sudo -E socat openssl-listen:443,reuseaddr,cert=$server_cert,key=$server_key,cafile=$ca_bundle,verify=0,fork STDOUT
