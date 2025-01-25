@@ -32,9 +32,11 @@ automatically added to the list of SANs.
 
 Six files are produced:
 
+    0_rootca_1734329560.cnf
     0_rootca_1734329560.crt
     0_rootca_1734329560.key
     0_rootca_1734329560.req
+    1_server_1734329560.cnf
     1_server_1734329560.crt
     1_server_1734329560.key
     1_server_1734329560.req
@@ -46,8 +48,10 @@ certificate has index 1.
 All files that belong to the same chain are suffixed by a common number that
 corresponds to the time (epoch format) when the chain was generated.
 
-`.req` are OpenSSL's configurations that could be reused for manual adjustments
-later on.
+`.req` are certificate requests.
+
+`.cnf` are OpenSSL's requests configuration files that could be reused for
+manual adjustments later on.
 
 `.crt` & `.key` files are certificates and private keys, respectively.
 
@@ -65,15 +69,19 @@ placed between leaf server certificate and self-signed root certificate.  Root
 certificate has the lower index, 0.  Intermediated certificate are indexed as 1
 & 2. The leaf server certificate is indexed as 3.
 
+    0_rootca_1734300199.cnf
     0_rootca_1734300199.crt
     0_rootca_1734300199.key
     0_rootca_1734300199.req
+    1_intca_1734300199.cnf
     1_intca_1734300199.crt
     1_intca_1734300199.key
     1_intca_1734300199.req
+    2_intca_1734300199.cnf
     2_intca_1734300199.crt
     2_intca_1734300199.key
     2_intca_1734300199.req
+    3_server_1734300199.cnf
     3_server_1734300199.crt
     3_server_1734300199.key
     3_server_1734300199.req

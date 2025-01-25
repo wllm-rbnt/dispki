@@ -52,14 +52,19 @@ sub print_usage {
 my $reqCA_tpl = <<"reqCA";
 [req]
 distinguished_name = req_distinguished_name
-x509_extensions = v3_req
+x509_extensions = v3_x509
+req_extensions = v3_req
 prompt = no
 [req_distinguished_name]
 CN = "&CN&"
-[v3_req]
+[v3_x509]
 basicConstraints        = critical, CA:TRUE
 subjectKeyIdentifier    = hash
 authorityKeyIdentifier  = keyid:always, issuer:always
+keyUsage                = critical, cRLSign, digitalSignature, keyCertSign
+[v3_req]
+basicConstraints        = critical, CA:TRUE
+subjectKeyIdentifier    = hash
 keyUsage                = critical, cRLSign, digitalSignature, keyCertSign
 reqCA
 
@@ -84,7 +89,7 @@ sub genroot {
     my $reqCA = $reqCA_tpl =~ s/&CN&/dispki_root_$id/r;
     my $ca = $level.'_rootca_'.$id;
 
-    open(FH, '>', $ca.'.req') or die $!;
+    open(FH, '>', $ca.'.cnf') or die $!;
     print FH $reqCA;
     close(FH);
 
@@ -94,8 +99,12 @@ sub genroot {
     } else {
         push(@cmd, ("rsa:$bits"))
     }
-    push(@cmd, ('-keyout', $ca.'.key', '-out', $ca.'.crt', '-config', $ca.'.req', '-extensions', 'v3_req'));
+    push(@cmd, ('-keyout', $ca.'.key', '-out', $ca.'.crt', '-config', $ca.'.cnf', '-extensions', 'v3_req'));
     system(@cmd);
+
+    @cmd = ($openssl, 'req', '-new', '-nodes', '-sha256', '-key', $ca.'.key', '-config', $ca.'.cnf', '-reqexts', 'v3_req', '-out', $ca.'.req');
+    system(@cmd);
+
     $prevca = $ca;
 }
 
@@ -105,7 +114,7 @@ sub genintermediates {
         my $reqCA = $reqCA_tpl =~ s/&CN&/dispki_int_$level\_$id/r;
         my $ca = $level.'_intca_'.$id;
 
-        open(FH, '>', $ca.'.req') or die $!;
+        open(FH, '>', $ca.'.cnf') or die $!;
         print FH $reqCA;
         close(FH);
 
@@ -116,8 +125,12 @@ sub genintermediates {
             push(@cmd, ("rsa:$bits"));
         }
         push(@cmd, ('-keyout', $ca.'.key', '-out', $ca.'.crt', '-CA', $prevca.'.crt', '-CAkey', $prevca.'.key',
-            '-config', $ca.'.req', '-extensions', 'v3_req'));
+            '-config', $ca.'.cnf', '-extensions', 'v3_req'));
         system(@cmd);
+
+        @cmd = ($openssl, 'req', '-new', '-nodes', '-sha256', '-key', $ca.'.key', '-config', $ca.'.cnf', '-reqexts', 'v3_req', '-out', $ca.'.req');
+        system(@cmd);
+
         $prevca = $ca;
         $depth--;
         $level++;
@@ -141,7 +154,7 @@ sub genserver {
     $req = $req =~ s/&SAN&/$sanstr/r;
     my $cert = $level.'_server_'.$id;
 
-    open(FH, '>', $cert.'.req') or die $!;
+    open(FH, '>', $cert.'.cnf') or die $!;
     print FH $req;
     close(FH);
 
@@ -152,7 +165,10 @@ sub genserver {
         push(@cmd, ("rsa:$bits"));
     }
     push(@cmd, ('-keyout', $cert.'.key', '-out', $cert.'.crt', '-CA', $prevca.'.crt', '-CAkey', $prevca.'.key',
-        '-config', $cert.'.req', '-extensions', 'v3_req'));
+        '-config', $cert.'.cnf', '-extensions', 'v3_req'));
+    system(@cmd);
+
+	@cmd = ($openssl, 'req', '-new', '-nodes', '-sha256', '-key', $cert.'.key', '-config', $cert.'.cnf', '-reqexts', 'v3_req', '-out', $cert.'.req');
     system(@cmd);
 }
 
