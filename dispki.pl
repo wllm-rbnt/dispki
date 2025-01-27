@@ -18,6 +18,7 @@
 
 use strict;
 use warnings;
+use Carp;
 use Getopt::Long;
 
 # Path to the openssl binary
@@ -36,6 +37,13 @@ my $id = time;
 my $level = 0;
 my $prevca = '';
 
+sub check_openssl_version {
+    open(my $fh, "-|", "$openssl version")
+        or croak "Error checking OpenSSL version!";
+
+	croak "Wrong OpenSSL version!" if <$fh> !~ /^OpenSSL 4/;
+}
+
 sub print_usage {
     print "Usage:\n";
     print "\t$0 [-d|--depth <number>] [-b|--bits <number>] [-t|--ttl <number>] <server CN> [<server SANs>]\n\n";
@@ -46,7 +54,7 @@ sub print_usage {
     print "-c| --curve -> specify elliptic curve to use (default: P-256)\n";
     print "-t| --ttl <number>  -> TTL in days (default: 365 days)\n";
     print "Use --help (or -h) to print this help message\n";
-    exit 1
+    exit 1;
 }
 
 my $reqCA_tpl = <<"reqCA";
@@ -217,6 +225,7 @@ print "TTL: $ttl\n";
 print "RSA modulus length: $bits\n" unless $ec;
 print "EC curve: $curve\n" if $ec;
 
+check_openssl_version;
 genroot;
 $level=1;
 genintermediates if $depth;
