@@ -41,7 +41,7 @@ sub check_openssl_version {
     open(my $fh, "-|", "$openssl version")
         or croak "Error checking OpenSSL version!";
 
-	croak "Wrong OpenSSL version!" if <$fh> !~ /^OpenSSL 4/;
+	croak "Wrong OpenSSL version!" if <$fh> !~ /^OpenSSL 3/;
 }
 
 sub print_usage {
